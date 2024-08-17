@@ -1,136 +1,35 @@
-// ui/wavy-background.tsx
+// components/hero.tsx
 "use client";
-import React, { useEffect, useRef, useState } from "react";
-import { createNoise3D } from "simplex-noise";
-import { cn } from "@/lib/utils";
+import React from "react";
+import { FaChevronDown } from "react-icons/fa";
 
-export const WavyBackground = ({
-  children,
-  className,
-  containerClassName,
-  colors,
-  waveWidth,
-  backgroundFill,
-  blur = 10,
-  speed = "fast", // Configurado en "fast" para un movimiento más rápido
-  waveOpacity = 0.5,
-  ...props
-}: {
-  children?: any;
-  className?: string;
-  containerClassName?: string;
-  colors?: string[];
-  waveWidth?: number;
-  backgroundFill?: string;
-  blur?: number;
-  speed?: "slow" | "medium" | "fast";
-  waveOpacity?: number;
-  [key: string]: any;
-}) => {
-  const noise = createNoise3D();
-  let w: number,
-    h: number,
-    nt: number,
-    i: number,
-    x: number,
-    ctx: any,
-    canvas: any;
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const getSpeed = () => {
-    switch (speed) {
-      case "slow":
-        return 0.001;
-      case "medium":
-        return 0.0015; // Un poco más rápido que "medium" anterior
-      case "fast":
-        return 0.003; // Un poco más rápido que "fast" anterior
-      default:
-        return 0.001;
-    }
-  };
-
-  const init = () => {
-    canvas = canvasRef.current;
-    ctx = canvas.getContext("2d");
-    w = ctx.canvas.width = window.innerWidth;
-    h = ctx.canvas.height = window.innerHeight;
-    ctx.filter = `blur(${blur}px)`;
-    nt = 0;
-    window.onresize = function () {
-      w = ctx.canvas.width = window.innerWidth;
-      h = ctx.canvas.height = window.innerHeight;
-      ctx.filter = `blur(${blur}px)`;
-    };
-    render();
-  };
-
-  const waveColors = colors ?? [
-    "#f5f5f5",
-    "#dcdcdc",
-    "#a9a9a9",
-    "#808080",
-    "#696969",
-  ];
-
-  const drawWave = (n: number) => {
-    nt += getSpeed();
-    for (i = 0; i < n; i++) {
-      ctx.beginPath();
-      ctx.lineWidth = waveWidth || 50;
-      ctx.strokeStyle = waveColors[i % waveColors.length];
-      for (x = 0; x < w; x += 5) {
-        var y = noise(x / 800, 0.3 * i, nt) * 100;
-        ctx.lineTo(x, y + h * 0.5);
-      }
-      ctx.stroke();
-      ctx.closePath();
-    }
-  };
-
-  let animationId: number;
-  const render = () => {
-    ctx.fillStyle = backgroundFill || "black";
-    ctx.globalAlpha = waveOpacity || 0.5;
-    ctx.fillRect(0, 0, w, h);
-    drawWave(5);
-    animationId = requestAnimationFrame(render);
-  };
-
-  useEffect(() => {
-    init();
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, []);
-
-  const [isSafari, setIsSafari] = useState(false);
-  useEffect(() => {
-    setIsSafari(
-      typeof window !== "undefined" &&
-        navigator.userAgent.includes("Safari") &&
-        !navigator.userAgent.includes("Chrome")
-    );
-  }, []);
-
+export function Hero() {
   return (
-    <div
-      className={cn(
-        "h-screen flex flex-col items-center justify-center",
-        containerClassName
-      )}
-    >
-      <canvas
-        className="absolute inset-0 z-0"
-        ref={canvasRef}
-        id="canvas"
-        style={{
-          ...(isSafari ? { filter: `blur(${blur}px)` } : {}),
-        }}
-      ></canvas>
-      <div className={cn("relative z-10", className)} {...props}>
-        {children}
+    <div className="relative w-full h-screen max-w-4xl mx-auto pb-20 flex items-center justify-center">
+      {/* Contenedor de Video */}
+      <video
+        className="absolute top-0 left-0 w-full h-full object-cover filter blur-lg"
+        src="/path-to-your-video.mp4"
+        autoPlay
+        loop
+        muted
+      ></video>
+
+      {/* Overlay para oscurecer el video si es necesario */}
+      <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50"></div>
+
+      {/* Contenido del Hero */}
+      <div className="relative z-10 text-center">
+        <p className="text-2xl md:text-4xl lg:text-7xl text-white font-bold inter-var">
+          Hero waves are cool
+        </p>
+        <p className="text-base md:text-lg mt-4 text-white font-normal inter-var">
+          Leverage the power of canvas to create a beautiful hero section
+        </p>
+        <div className="flex justify-center mt-20">
+          <FaChevronDown className="text-white text-3xl animate-bounce" />
+        </div>
       </div>
     </div>
   );
-};
+}
